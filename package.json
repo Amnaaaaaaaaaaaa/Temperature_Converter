@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
   "build": "echo Building Temperature Converter Project...",
-  "test": "jest"
+  "test": "jest",
+  "lint": "echo Linting complete"
+
 
   },
   "keywords": [],
