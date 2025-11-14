@@ -27,15 +27,13 @@ pipeline {
             }
         }
 
-        stage('Archive Build Artifact') {
-            steps {
-                // Create a zip file (Windows)
-                bat 'powershell Compress-Archive -Path * -DestinationPath build_artifact.zip'
-                
-                // Publish the artifact
-                archiveArtifacts artifacts: 'build_artifact.zip', fingerprint: true
-            }
-        }
+       stage('Archive Build Artifact') {
+    steps {
+        bat 'powershell Compress-Archive -Path *.js, package.json, src -DestinationPath build_artifact.zip'
+        archiveArtifacts artifacts: 'build_artifact.zip', fingerprint: true
+    }
+}
+
     }
 
     post {
