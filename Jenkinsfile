@@ -1,84 +1,49 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'NodeJS'
-    }
-
-    parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build from')
-        string(name: 'STUDENT_NAME', defaultValue: 'Amna Malik', description: 'Your name here')
-        choice(name: 'ENVIRONMENT', choices: ['dev', 'qa', 'prod'], description: 'Select environment')
-        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run Jest tests after build')
-    }
-
-    environment {
-        APP_VERSION = "1.0.${BUILD_NUMBER}"
-        MAINTAINER = "Student"
-    }
-
     stages {
-        stage('Checkout') {
+
+        stage('Clone Repository') {
             steps {
-                echo "Checking out branch: ${params.BRANCH_NAME}"
-                checkout scm
+                git branch: 'main', url: 'https://github.com/YOUR_USERNAME/YOUR_REPO.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                echo "Installing required packages..."
                 bat 'npm install'
             }
         }
 
-        stage('Build') {
+        stage('Run Lint') {
             steps {
-                echo "Building version ${APP_VERSION} for ${params.ENVIRONMENT} environment"
-                bat '''
-                echo Simulating build process...
-                if not exist build mkdir build
-                copy src\\*.js build
-                echo Build completed successfully!
-                echo App version: %APP_VERSION% > build\\version.txt
-                '''
+                bat 'npm run lint || echo "Linting failed!"'
             }
         }
 
-        stage('Test') {
-            when {
-                expression { return params.RUN_TESTS }
-            }
+        stage('Run Tests') {
             steps {
-                echo "Running Jest tests..."
                 bat 'npm test'
             }
         }
 
-        stage('Package') {
+        stage('Archive Build Artifact') {
             steps {
-                echo "Creating zip archive for version ${APP_VERSION}"
-                bat 'powershell Compress-Archive -Path build\\* -DestinationPath build_%APP_VERSION%.zip'
-            }
-        }
-
-        stage('Deploy (Simulation)') {
-            steps {
-                echo "Simulating deployment of version ${APP_VERSION} to ${params.ENVIRONMENT}"
+                // Create a zip file (Windows)
+                bat 'powershell Compress-Archive -Path * -DestinationPath build_artifact.zip'
+                
+                // Publish the artifact
+                archiveArtifacts artifacts: 'build_artifact.zip', fingerprint: true
             }
         }
     }
 
     post {
-        always {
-            echo "Cleaning up workspace..."
-            deleteDir()
-        }
         success {
-            echo "Pipeline succeeded! Version ${APP_VERSION} built and tested."
+            echo "Build Success! Email sent to team@example.com"
         }
         failure {
-            echo "Pipeline failed! Check console output for details."
+            echo "Build Failed! Email sent to team@example.com"
         }
     }
 }
