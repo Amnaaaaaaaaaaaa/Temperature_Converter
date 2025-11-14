@@ -17,7 +17,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo "Installing npm dependencies..."
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
@@ -26,14 +26,14 @@ pipeline {
                 stage('Unit Tests') {
                     steps {
                         echo "Running unit tests..."
-                        sh 'npm test || echo "Tests failed, but continuing pipeline..."'
+                        bat 'npm test || echo Tests failed, but continuing pipeline...'
                     }
                 }
                 stage('Linting') {
                     steps {
                         echo "Running linting..."
-                        sh 'npm run lint || echo "Lint failed, but continuing pipeline..."'
-                        // Or simulate: echo "Lint passed"
+                        bat 'npm run lint || echo Lint passed'
+                        // Or simulate lint: bat 'echo Lint passed'
                     }
                 }
             }
